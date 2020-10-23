@@ -37,7 +37,7 @@ private:
 	void successPile(Pile *pile);
 
 	//移动一张牌，从frompile到topile, 动画支持
-	void animateOneCard(Pile &fromPile, Pile &toPile, BOOL face, int duration);
+	void animateOneCard(Pile &fromPile, Pile *toPile, BOOL face, int duration);
 
 	void animateSuccess();
 
@@ -60,6 +60,8 @@ private:
 	int m_nOpSuit;
 	BOOL m_bNewGame;
 	int m_score;
+
+	BOOL m_bDragged;
 
 };
 

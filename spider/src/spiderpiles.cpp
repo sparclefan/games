@@ -71,8 +71,8 @@ void WorkPile::addCardImpl(Card *card)
     connect(card,SIGNAL(sigSelected(Card *, QPoint)), this, SLOT(onCardSelect(Card *, QPoint)));
     connect(card,SIGNAL(sigEnter(Card *)), this, SLOT(enterEvent(Card *)));
     connect(card,SIGNAL(sigLeave(Card *)), this, SLOT(leaveEvent(Card *)));
-    connect(card,SIGNAL(sigDoubleClicked(Card *)), this, SLOT(cardDoubleClicked(Card *)));
-    // connect(card,SIGNAL(sigClicked(Card *)), this, SLOT(cardClicked(Card *)));
+    // connect(card,SIGNAL(sigDoubleClicked(Card *)), this, SLOT(cardDoubleClicked(Card *)));
+    connect(card,SIGNAL(sigClicked(Card *)), this, SLOT(cardClicked(Card *)));
     m_cards.push_back(card);
 }
 

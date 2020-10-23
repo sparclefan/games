@@ -80,7 +80,7 @@ void Pile::popCards(Card *fromCard, vector<Card *> &cardlist)
         // (*it)->disconnect(SIGNAL(sigLeave(Card *)));
 
         cardlist.push_back(*it);
-        m_cards.erase(it);
+        it = m_cards.erase(it);
     }
 
     reArrange();
@@ -134,10 +134,17 @@ Card * Pile::getHeadCard()
 }
 
 Op::Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast)
-:m_pilefrom(pilefrom),m_pileto(pileto),m_revlast(revlast)
+:Op(pilefrom, pileto, cardlist, revlast, FALSE)
 {
     m_cards = cardlist;
 }
+
+Op::Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast, BOOL revOrder)
+	: m_pilefrom(pilefrom), m_pileto(pileto), m_revlast(revlast), m_revOrder(revOrder)
+{
+	m_cards = cardlist;
+}
+
 
 void Op::undo()
 {
@@ -150,11 +157,19 @@ void Op::undo()
     // qDebug()<<"===========undo========";
     // m_pileto->debug();
     Card *head = m_cards.front();
+	if (m_revOrder) {
+		head = m_cards.back();
+	}
 
     // qDebug()<<"try to find card: "<<head->suit()<<"-"<<head->rank();
 
     vector<Card *> cardlist;
     m_pileto->popCards(head, cardlist);
+
+	if (m_revOrder) {
+		reverse(cardlist.begin(), cardlist.end());
+	}
+
     m_pilefrom->addCards(m_cards);
     // qDebug()<<"--------------------------";
 }

@@ -46,6 +46,7 @@ class Op
 {
 public:
     Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast);
+	Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast, BOOL revOrder);
 
     void undo();
 
@@ -54,6 +55,7 @@ private:
     Pile *m_pileto;
     vector<Card *> m_cards;
     BOOL m_revlast;
+	BOOL m_revOrder;
 };
 
 //单张牌移牌动画，主要为了关联finished消息, 动画结束后将 牌 加到目标牌摞上

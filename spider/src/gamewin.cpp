@@ -138,6 +138,7 @@ void GameWin::newGame()
 	m_orgPile.show(TRUE);
 
 	m_bNewGame = TRUE;
+	m_bDragged = FALSE;
 
 	for(auto it=m_undoList.cbegin(); it!=m_undoList.cend();)
 	{
@@ -146,10 +147,10 @@ void GameWin::newGame()
 		{
 			Op * op = *itop;
 			delete op;
-			opList->erase(itop);
+			itop = opList->erase(itop);
 		}
 		delete opList;
-		m_undoList.erase(it);
+		it = m_undoList.erase(it);
 	}
 
 	vector<vector<Op *> *> tmpUndolist;
@@ -173,14 +174,14 @@ void GameWin::deliver()
 		for(int i=0; i<54; i++)
 		{
 			BOOL face= (i>=44);
-			animateOneCard(m_orgPile, m_workPiles[i%10], face, 200);
+			animateOneCard(m_orgPile, &m_workPiles[i%10], face, 200);
 		}
 	}else{
 		vector<Op *> *undo = new vector<Op *>();
 		for(int i=0; i<10; i++){
 			Card *card = m_orgPile.getTailCard();
 			if(card){
-				animateOneCard(m_orgPile, m_workPiles[i], TRUE, 300);
+				animateOneCard(m_orgPile, &m_workPiles[i], TRUE, 300);
 				vector<Card *> opcardlist;
 				opcardlist.push_back(card);
 				Op *op = new Op(&m_orgPile, &m_workPiles[i], opcardlist, FALSE);
@@ -219,6 +220,8 @@ void GameWin::undo()
 
 void GameWin::tryAutoMove(Pile *pile, Card *card)
 {
+	if(m_bDragged) return;
+
 	Pile *matchPile = NULL;
 	Pile *alterPile = NULL;
 	Pile *emptyPile = NULL;
@@ -274,8 +277,9 @@ void GameWin::tryAutoMove(Pile *pile, Card *card)
 				toPile->getTailCards(13, cards);
 				Card *card = toPile->getTailCardById(14);
 				BOOL rev = (card && (!card->isFaceOn()));
-				Op *op = new Op(toPile, &m_sucessPile[i], cards, rev);
+				Op *op = new Op(toPile, &m_sucessPile[i], cards, rev, TRUE);
 				undo->push_back(op);
+				break;
 			}
 		}
 		successPile(toPile);
@@ -295,6 +299,7 @@ void GameWin::onDragStart(Pile *pile, vector<Card *>* cardlist, QPoint pt)
 	m_pDragPile = pile;
 	m_movePile.startDrag(*cardlist, pt); 
 	Card *card = cardlist->front();
+	m_bDragged = FALSE;
 
 	// qDebug()<<"GameWin onDragStart";
 	card->disconnect(SIGNAL(sigDrop(QPoint)));
@@ -332,6 +337,7 @@ void GameWin::onDrop(QPoint pt)
 	vector<Op *> *undo = new vector<Op *>();
 	Pile *pile = getDropPile(pt);
 	if(pile != m_pDragPile){
+		m_bDragged = TRUE;
 		Card *card = m_pDragPile->getTailCard();
 		BOOL brevface = FALSE;
 		if( card && (!card->isFaceOn()) ){
@@ -358,7 +364,7 @@ void GameWin::onDrop(QPoint pt)
 				pile->getTailCards(13, cards);
 				Card *card = pile->getTailCardById(14);
 				BOOL rev = (card && (!card->isFaceOn()));
-				Op *op = new Op(pile, &m_sucessPile[i], cards, rev);
+				Op *op = new Op(pile, &m_sucessPile[i], cards, rev, TRUE);
 				undo->push_back(op);
 			}
 		}
@@ -383,7 +389,7 @@ void GameWin::successPile(Pile *pile)
 		if(m_sucessPile[i].count()==0){
 			// m_nSucessPile = (i+1);
 			for(int j=0; j<13; j++){
-				animateOneCard(*pile,m_sucessPile[i],TRUE,100);
+				animateOneCard(*pile,&m_sucessPile[i],TRUE,100);
 			}
 			break;
 		}
@@ -428,14 +434,14 @@ void GameWin::onPileSuccessFinished()
 
 }
 
-void GameWin::animateOneCard(Pile &fromPile, Pile &toPile, BOOL face, int duration)
+void GameWin::animateOneCard(Pile &fromPile, Pile *toPile, BOOL face, int duration)
 {
 	Card *card = fromPile.popTail();
 	if(card==NULL) return;
 
-	QPoint pt= toPile.getNextCardPos();
+	QPoint pt= toPile->getNextCardPos();
 
-	CardAnimation *ani = new CardAnimation(card, &toPile, face);
+	CardAnimation *ani = new CardAnimation(card, toPile, face);
 	ani->setDuration(duration);
 	ani->setStartValue(card->geometry());
 	ani->setEndValue(QRect(pt.x(),pt.y(),card->width(), card->height()));
