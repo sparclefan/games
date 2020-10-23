@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GameFrame</class>
+ <widget class="QMainWindow" name="GameFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>2125</width>
+    <height>1448</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>连连看</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>2141</width>
+      <height>1281</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="InfoView" name="infoView" native="true">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="GameView" name="gameView" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>2125</width>
+     <height>45</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>新游戏</string>
+    </property>
+    <addaction name="actionSimple"/>
+    <addaction name="actionNormal"/>
+    <addaction name="actionHard"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSimple">
+   <property name="text">
+    <string>初级</string>
+   </property>
+  </action>
+  <action name="actionNormal">
+   <property name="text">
+    <string>中级</string>
+   </property>
+  </action>
+  <action name="actionHard">
+   <property name="text">
+    <string>高级</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GameView</class>
+   <extends>QWidget</extends>
+   <header>gameview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>InfoView</class>
+   <extends>QWidget</extends>
+   <header>infoview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="res/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

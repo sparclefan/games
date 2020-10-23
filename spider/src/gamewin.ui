@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GameWin</class>
+ <widget class="QMainWindow" name="GameWin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1853</width>
+    <height>1331</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>蜘蛛纸牌</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res/icons.qrc">
+    <normaloff>:/icon/spider.jpg</normaloff>:/icon/spider.jpg</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>20</number>
+    </property>
+    <property name="rightMargin">
+     <number>20</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QFrame" name="frame">
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>147</red>
+            <green>193</green>
+            <blue>136</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>147</red>
+            <green>193</green>
+            <blue>136</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="Base">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>147</red>
+            <green>193</green>
+            <blue>136</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="Window">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>147</red>
+            <green>193</green>
+            <blue>136</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+   <addaction name="actionOptoin"/>
+   <addaction name="actionNewGame"/>
+   <addaction name="actionUndo"/>
+  </widget>
+  <action name="actionNewGame">
+   <property name="icon">
+    <iconset resource="res/icons.qrc">
+     <normaloff>:/icon/newgame.jpg</normaloff>:/icon/newgame.jpg</iconset>
+   </property>
+   <property name="text">
+    <string>新游戏</string>
+   </property>
+   <property name="toolTip">
+    <string>新游戏</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="res/icons.qrc">
+     <normaloff>:/icon/undo.jpg</normaloff>
+     <normalon>:/icon/c1.jpg</normalon>:/icon/undo.jpg</iconset>
+   </property>
+   <property name="text">
+    <string>撤消</string>
+   </property>
+   <property name="toolTip">
+    <string>撤消</string>
+   </property>
+  </action>
+  <action name="actionOptoin">
+   <property name="icon">
+    <iconset resource="res/icons.qrc">
+     <normaloff>:/icon/option.jpg</normaloff>:/icon/option.jpg</iconset>
+   </property>
+   <property name="text">
+    <string>选项</string>
+   </property>
+   <property name="toolTip">
+    <string>选项</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="res/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
