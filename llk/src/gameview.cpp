@@ -181,6 +181,9 @@ BOOL GameView::caculateDrawInfo(DrawInfo &info)
     info.margin_w = DEFAULT_HORIZON_MARGIN;
     info.margin_h = DEFAULT_VERTICAL_MARGIN;
 
+    if( info.colnum<=0 || info.rownum<=0 )
+        return FALSE;
+
     info.colWidth = (info.totalWidth - info.margin_w*2)/info.colnum;
     info.rowHeight = (info.totalHeight - info.margin_h*2)/info.rownum;
 

@@ -54,13 +54,20 @@ const BYTE BLOCKTYPES[][4] = {
 };
 
 const QColor TYPE_COLOR[] = {
-      QColorConstants::Blue,
-      QColorConstants::Cyan,
-      QColorConstants::Red,
-      QColorConstants::Gray,
-      QColorConstants::Yellow,
-      QColorConstants::Green,
-      QColorConstants::Magenta
+      // QColorConstants::Blue,
+      // QColorConstants::Cyan,
+      // QColorConstants::Red,
+      // QColorConstants::Gray,
+      // QColorConstants::Yellow,
+      // QColorConstants::Green,
+      // QColorConstants::Magenta
+      QColor(175, 211, 217),
+      QColor(185, 181, 201),
+      QColor(199, 224, 161),
+      QColor(249, 200, 159),
+      QColor(227, 206, 168),
+      QColor(204, 51, 102),
+      QColor(204, 153, 102 )
 };
 
 #define MAX_BLOCK_TYPE 7;

@@ -314,6 +314,7 @@ void CGameLLK::NextLevel()
 	m_nLife += 2;
 	m_nTips += 2;
 	m_iTimer = m_iOrgTimer;
+	m_bTimeRun = TRUE;
 
 	emit sigRepaint();
 	emit sigInfoChange();
@@ -992,5 +993,8 @@ void CGameLLK::onTimeout()
 
 	if(m_iTimer<=0){
 		m_timer.stop();
+		QMessageBox::information(NULL, "Game Over!", "时间耗尽，游戏结束!!");
+		ResetGame();
+		return;		
 	}
 }
