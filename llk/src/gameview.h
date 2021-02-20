@@ -45,6 +45,7 @@ public slots:
     void onActionSimple();
     void onActionNormal();
     void onActionHard();
+    void onPause();
 
     void onIconSelect(int idx);
     void onDropLine();

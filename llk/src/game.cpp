@@ -27,6 +27,7 @@ CGameLLK::CGameLLK()
 	m_iOrgTimer = 0;
 	m_bTimeRun = FALSE;
 	m_iClass = 0;
+	m_bPause = FALSE;
 
 	m_iSelect1 = -1;
 	m_iSelect2 = -1;
@@ -575,6 +576,7 @@ void CGameLLK::ResetGame()
 	m_iTimer = 0;
 	m_iScore = 0;
 	m_iOrgTimer = 0;
+	m_bPause = FALSE;
 
 	m_iSelect1 = -1;
 	m_iSelect2 = -1;
@@ -618,11 +620,18 @@ void CGameLLK::NewGame(int c)
 	m_iClass = c;
 	m_iScore = 0;
 	m_iLevel = 0;
+	m_bPause = FALSE;
 //	emit sigInfoChange();
 	emit sigRepaint();
 
 	m_timer.start(100);
 
+}
+
+void CGameLLK::PauseContinue()
+{
+	m_bPause = (!m_bPause);
+	emit sigInfoChange();
 }
 
 int CGameLLK::getIconId(int col, int row)
@@ -700,7 +709,7 @@ void CGameLLK::DropIcons(int id1, int id2)
 
 	AfterDropBlock(id1, id2);
 
-	m_iTimer += 2;
+	m_iTimer += 10;
 	m_iScore += 10;
 
 	emit sigScoreChange();
@@ -971,7 +980,7 @@ QString CGameLLK::gameClassInfo() const
 		return "难度 高级";
 		break;
 	}
-	return "";
+	return "难度 选择";
 }
 
 QString CGameLLK::gameMessage() const
@@ -986,6 +995,8 @@ QString CGameLLK::gameMessage() const
 void CGameLLK::onTimeout()
 {
 	if(!m_bTimeRun) return;
+
+	if( m_bPause ) return;
 
 	m_iTimer--;
 

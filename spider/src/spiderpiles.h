@@ -4,6 +4,7 @@
 #include "pile.h"
 
 #define DEFAULT_LINE_SPACE 80
+#define SHOW_SUIT_SPACE 70
 
 class WorkPile : public Pile
 {

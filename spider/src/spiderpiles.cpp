@@ -107,14 +107,18 @@ void WorkPile::onCardSelect(Card *card, QPoint pt)
 
 void WorkPile::enterEvent(Card *card)
 {
-    if(m_linespace>=50) return;
+    if(m_linespace>=SHOW_SUIT_SPACE) return;
+
+    if( !card->isFaceOn() ) return;
 
     auto it = find(m_cards.cbegin(), m_cards.cend(), card);
     if(it+1==m_cards.cend())  //最后一张
         return;
 
+    it++;
+
     int ox = (*it)->x();
-    int oy = (*it)->y()+50;
+    int oy = (*it)->y()+SHOW_SUIT_SPACE-m_linespace;
     for(; it!=m_cards.cend(); it++)
     {
         (*it)->move(ox, oy);

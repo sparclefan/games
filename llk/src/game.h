@@ -17,6 +17,8 @@ public:
 
 	void ResetGame();
 
+	void PauseContinue();
+
 	BOOL LifeChance();
 	BOOL GetTip(int &tip1, int &tip2);
 	BYTE GetIconType(int c, int r);
@@ -32,6 +34,7 @@ public:
 	inline int getOrgTimer() const{return m_iOrgTimer;};
 	inline vector<CPoint *> getDropLine() const{return m_dropLine.m_pts;};
 	inline int score() const { return m_iScore;};
+	inline BOOL isPause() const { return m_bPause;};
 
 public slots:
 	void onTimeout();
@@ -104,6 +107,7 @@ private:
 
 	BYTE m_cLastIcon;
 	QTimer m_timer;
+	BOOL m_bPause;
 
 };
 

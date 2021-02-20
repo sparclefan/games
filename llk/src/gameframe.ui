@@ -14,7 +14,7 @@
    <string>连连看</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -29,7 +29,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>300</height>
+         <height>150</height>
         </size>
        </property>
       </widget>

@@ -107,6 +107,11 @@ void GameView::onActionHard()
     repaintIconboard();
 }
 
+void GameView::onPause()
+{
+    m_game.PauseContinue();
+}
+
 void GameView::resizeEvent(QResizeEvent *event)
 {
     if(m_pPixmap==NULL) return;
@@ -140,6 +145,9 @@ void GameView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_F3:
         onActionHard();
+        break;
+    case Qt::Key_F4:
+        onPause();
         break;
     case Qt::Key_F5:
         if( m_game.GetTip(m_iTip1, m_iTip2) )
@@ -178,14 +186,19 @@ BOOL GameView::caculateDrawInfo(DrawInfo &info)
 
     info.colnum = m_game.colNum();
     info.rownum = m_game.rowNum();
-    info.margin_w = DEFAULT_HORIZON_MARGIN;
-    info.margin_h = DEFAULT_VERTICAL_MARGIN;
+    // info.margin_w = DEFAULT_HORIZON_MARGIN;
+    // info.margin_h = DEFAULT_VERTICAL_MARGIN;
 
     if( info.colnum<=0 || info.rownum<=0 )
         return FALSE;
 
-    info.colWidth = (info.totalWidth - info.margin_w*2)/info.colnum;
-    info.rowHeight = (info.totalHeight - info.margin_h*2)/info.rownum;
+    // info.colWidth = (info.totalWidth - info.margin_w*2)/info.colnum;
+    // info.rowHeight = (info.totalHeight - info.margin_h*2)/info.rownum;
+
+    info.colWidth = (info.totalWidth-4)/(info.colnum+1);
+    info.margin_w = info.colWidth/2+2;
+    info.rowHeight = (info.totalHeight-4)/(info.rownum+1);
+    info.margin_h = info.rowHeight/2+2;
 
     if( info.colWidth > MAX_ICON_WIDTH ){
         info.colWidth = MAX_ICON_WIDTH;
