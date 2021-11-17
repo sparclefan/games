@@ -4,9 +4,11 @@
 #include <time.h>
 #include <stdlib.h>
 
+
 Card::Card(Suit suit, int rank, QWidget *parent, BOOL face)
 : QLabel(parent), m_suit(suit), m_rank(rank), m_bInDrag(FALSE)
 {
+
     m_bkimg.load(":/img/back.jpg");
     QString suitImg;
     switch(suit)
@@ -202,3 +204,4 @@ void Card::shuffle(vector<Card *>* cardlist)
         cardlist->push_back(*it);
     }
 }
+

@@ -46,6 +46,8 @@ public:
     inline Suit suit() const {return m_suit;};
     inline int rank() const {return m_rank;};
     inline BOOL isFaceOn() const {return m_up;};
+    inline int id() const {return m_id;};
+    inline void setId(int id) { m_id = id; };
 
     //###############各种发牌静态方法#####################
 
@@ -94,6 +96,7 @@ private:
     int m_orgWidth;
     int m_orgHeight;
 
+    int m_id;  //唯一标识
 };
 
 

@@ -12,8 +12,11 @@ namespace Ui{
 	class GameWin;
 }
 
+class GameStorage;
+
 class GameWin : public QMainWindow
 {
+friend class GameStorage;
 	Q_OBJECT
 public:
 	GameWin();
@@ -30,6 +33,8 @@ private slots:
 	void undo();
 	void debug();
 	void tryAutoMove(Pile *pile, Card *card);
+	void saveGame();
+	void loadGame();
 
 private:
 	void setOptionSuitNum(int num);
@@ -40,6 +45,9 @@ private:
 	void animateOneCard(Pile &fromPile, Pile *toPile, BOOL face, int duration);
 
 	void animateSuccess();
+
+	void clearPiles();
+	void clearAll();
 
     Ui::GameWin *ui;
 

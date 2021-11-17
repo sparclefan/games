@@ -161,6 +161,8 @@ void Op::undo()
 		head = m_cards.back();
 	}
 
+    if(m_isDeliver) head->setFace(FALSE);
+
     // qDebug()<<"try to find card: "<<head->suit()<<"-"<<head->rank();
 
     vector<Card *> cardlist;
@@ -172,6 +174,24 @@ void Op::undo()
 
     m_pilefrom->addCards(m_cards);
     // qDebug()<<"--------------------------";
+}
+
+void Op::redo()
+{
+    vector<Card *> cardlist;
+    Card *head = m_cards.front();
+    if(m_isDeliver) head->setFace(TRUE);
+    m_pilefrom->popCards(head, cardlist);
+	if (m_revOrder) {
+		reverse(cardlist.begin(), cardlist.end());
+	}
+    m_pileto->addCards(cardlist);
+
+    if(m_revlast){
+        Card *card = m_pilefrom->getTailCard();
+        if(card != NULL)
+            card->setFace(TRUE);
+    }
 }
 
 CardAnimation::CardAnimation(Card *card, Pile *toPile, BOOL face)

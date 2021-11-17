@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icon">
+    <file>load.png</file>
+    <file>save.png</file>
     <file>spider.jpg</file>
     <file>option.jpg</file>
     <file>newgame.jpg</file>

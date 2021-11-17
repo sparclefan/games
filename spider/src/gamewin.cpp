@@ -3,7 +3,9 @@
 
 #include "ui_gamewin.h"
 #include "gamewin.h"
+#include "storage.h"
 #include <QDebug>
+#include <QFileDialog>
 
 GameWin::GameWin()
 :QMainWindow()
@@ -36,8 +38,11 @@ GameWin::GameWin()
 	connect(ui->actionNewGame, SIGNAL(triggered()), this, SLOT(newGame()));
 	connect(&m_orgPile, SIGNAL(sigDeliver()), this, SLOT(deliver()));
 	connect(ui->actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
-
 	connect(ui->actionOptoin, SIGNAL(triggered()), this, SLOT(debug()));
+	
+	connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveGame()));
+	connect(ui->actionLoad, SIGNAL(triggered()), this, SLOT(loadGame()));
+
 }
 
 GameWin::~GameWin()
@@ -134,6 +139,13 @@ void GameWin::newGame()
 
 	Card::shuffle(&m_cards);
 	Card::shuffle(&m_cards);
+
+	int id = 0;
+	for(auto card : m_cards)
+	{
+		card->setId(id ++);
+	}
+
 	m_orgPile.addCards(m_cards);
 	m_orgPile.show(TRUE);
 
@@ -185,6 +197,7 @@ void GameWin::deliver()
 				vector<Card *> opcardlist;
 				opcardlist.push_back(card);
 				Op *op = new Op(&m_orgPile, &m_workPiles[i], opcardlist, FALSE);
+				op->setDeliver();
 				undo->push_back(op);
 			}
 		}
@@ -481,4 +494,113 @@ void GameWin::animateSuccess()
 		m_aniGroup.addAnimation(pPag);
 	}
 	m_aniGroup.start();
+}
+
+void GameWin::clearPiles()
+{
+	m_aniGroup.clear();
+	m_aniGroup.disconnect(SIGNAL(finished()));
+
+	for(auto it=m_cards.cbegin(); it!=m_cards.cend(); it++)
+	{
+		(*it)->disconnect();
+		(*it)->setVisible(FALSE);
+	}
+
+	for(int i=0; i<10; i++)
+	{
+		m_workPiles[i].removeAll();
+	}
+
+	for(int i=0; i<8; i++)
+	{
+		m_sucessPile[i].removeAll();
+	}
+
+	m_orgPile.removeAll();
+
+	for(auto it=m_undoList.cbegin(); it!=m_undoList.cend();)
+	{
+		vector<Op *> *opList = *it;
+		for(auto itop=opList->cbegin(); itop!=opList->cend();)
+		{
+			Op * op = *itop;
+			delete op;
+			itop = opList->erase(itop);
+		}
+		delete opList;
+		it = m_undoList.erase(it);
+	}
+
+	vector<vector<Op *> *> tmpUndolist;
+	m_undoList.swap(tmpUndolist);
+
+	m_score = 500;
+	m_nSucessPile = 0;
+
+}
+
+void GameWin::clearAll()
+{
+	clearPiles();
+
+	for( auto card : m_cards )
+	{
+		delete card;
+	}
+	vector<Card *> empty;
+	m_cards.swap(empty);
+}
+
+void GameWin::saveGame()
+{
+	QString fpath = QFileDialog::getSaveFileName();
+
+	if( !fpath.isEmpty() )
+	{
+		GameStorage gs(this);
+		gs.Save( fpath.toStdString() );
+	}
+
+}
+
+void GameWin::loadGame()
+{
+	QString fpath = QFileDialog::getOpenFileName();
+	if( fpath.isEmpty()) return;
+
+	GameStorage gs(this);
+	if( !gs.Load( fpath.toStdString() ) )
+	{
+		return;
+	}
+
+	// 根据 undolist 恢复
+	m_orgPile.addCards(m_cards);
+	m_bDragged = FALSE;
+	m_bNewGame = FALSE;
+
+	// 初始发牌
+	for(int i=0; i<54; i++)
+	{
+		BOOL face= (i>=44);
+		Card *card = m_orgPile.popTail();
+		card->setFace(face);
+		m_workPiles[i%10].addCard(card);
+	}
+
+	for(auto oplist : m_undoList)
+	{
+		for(auto op : *oplist)
+		{
+			op->redo();
+		}
+	}
+
+	m_orgPile.show(TRUE);
+	for(int i=0; i<10; i++)
+		m_workPiles[i].show(TRUE);
+	for(int i=0; i<8; i++)
+		m_sucessPile[i].show(TRUE);
+
 }

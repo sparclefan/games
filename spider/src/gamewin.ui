@@ -119,6 +119,8 @@
    <addaction name="actionOptoin"/>
    <addaction name="actionNewGame"/>
    <addaction name="actionUndo"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionLoad"/>
   </widget>
   <action name="actionNewGame">
    <property name="icon">
@@ -155,6 +157,30 @@
    </property>
    <property name="toolTip">
     <string>选项</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="res/icons.qrc">
+     <normaloff>:/icon/save.png</normaloff>:/icon/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>保存</string>
+   </property>
+   <property name="toolTip">
+    <string>保存当前游戏</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="res/icons.qrc">
+     <normaloff>:/icon/load.png</normaloff>:/icon/load.png</iconset>
+   </property>
+   <property name="text">
+    <string>载入</string>
+   </property>
+   <property name="toolTip">
+    <string>载入保存的游戏</string>
    </property>
   </action>
  </widget>

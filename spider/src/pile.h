@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QPropertyAnimation>
 
+class GameStorage;
+
 class Pile : public QObject
 {
     Q_OBJECT
@@ -44,11 +46,15 @@ protected:
 //为支持 undo 功能，将所有移牌操作归纳为从一摞移到另一摞，undo时只需反向移动即可
 class Op
 {
+friend class GameStorage;
 public:
     Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast);
 	Op(Pile *pilefrom, Pile *pileto, vector<Card *> &cardlist, BOOL revlast, BOOL revOrder);
 
     void undo();
+    void redo();
+
+    inline void setDeliver(){m_isDeliver = TRUE;}
 
 private:
     Pile *m_pilefrom;
@@ -56,6 +62,7 @@ private:
     vector<Card *> m_cards;
     BOOL m_revlast;
 	BOOL m_revOrder;
+    BOOL m_isDeliver = FALSE;
 };
 
 //单张牌移牌动画，主要为了关联finished消息, 动画结束后将 牌 加到目标牌摞上
