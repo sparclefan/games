@@ -12,20 +12,35 @@ public:
     NumBlock(QWidget *parent, int num);
     ~NumBlock();
 
-    void merge();
+    enum BlockFlag{
+        Standby,
+        Origin,
+        Try,
+        Selected,
+        SetOn,
+        Candidate,
+        Conflict
+    };
 
     inline bool equals(NumBlock *block) { return (block && (m_num==block->m_num));};
-    inline bool needAnimate() const{ return m_newblock;};
-    inline void endNewBlock() { m_newblock = false; };
+    // inline bool needAnimate() const{ return m_newblock;};
+    // inline void endNewBlock() { m_newblock = false; };
     inline int number() const { return m_num;};
+    inline void setFlag(BlockFlag flag) { m_flag = flag; };
+    inline void select(bool bSelect) {m_select = bSelect; };
+    inline void candidate(bool bCandidate) { m_candidate = bCandidate;};
+    inline bool isTry() { return m_flag==Try; };
+    inline bool isConflict() { return m_flag==Conflict;};
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
-    QColor getColor();
+    BlockFlag m_flag;
     int m_num;
-    bool m_newblock;
+    bool m_select;
+    bool m_candidate;
+    // bool m_newblock;
 };
 
 
@@ -44,25 +59,7 @@ private:
     NumBlock *m_block;
     QRect m_endRect;
     bool m_endflag;
-
 };
 
-
-// 合并动画
-class MergeAnimation : public QPropertyAnimation
-{
-    Q_OBJECT
-public:
-    MergeAnimation(NumBlock *blockMerge, NumBlock *blockDst);
-    ~MergeAnimation();
-
-public slots:
-    void endAnimate();
-
-private:
-    NumBlock *m_blockMerge;
-    NumBlock *m_blockDst;
-
-};
 
 #endif //__numblock_h_Sparcle_2021_11_12

@@ -116,6 +116,7 @@ MergeAnimation::~MergeAnimation()
 {
     // Sometimes if play too quick, animation is clear before it's end
     if(m_blockMerge){
+        m_blockDst->merge();
         delete(m_blockMerge);
         m_blockMerge = nullptr;
     } 

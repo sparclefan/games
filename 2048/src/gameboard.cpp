@@ -284,9 +284,12 @@ void GameBoard::moveBlock(Loc src, Loc dst, QAnimationGroup *group)
 
 void GameBoard::mergeBlock(Loc src, Loc dst, QAnimationGroup *group)
 {
+    int score = getBlock(dst)->number();
     MergeAnimation *mergeAni = new MergeAnimation(getBlock(src), getBlock(dst));
     group->addAnimation(mergeAni);
     setBlock(src, nullptr);
+    m_score += (score*2);
+    emit sigScoreChanged(m_score);
 }
 
 
@@ -365,8 +368,6 @@ bool GameBoard::newNum()
                 m_blocks[col][row] = new NumBlock(this, n);
                 m_blocks[col][row]->setGeometry(blockRect(col, row));
                 m_blocks[col][row]->show();
-                m_score += n;
-                emit sigScoreChanged(m_score);
                 return true;
             }
             id ++;
