@@ -205,10 +205,97 @@ color: rgb(170, 85, 0);</string>
         <string>Sudoku</string>
        </property>
       </widget>
+      <widget class="QCheckBox" name="cb_try">
+       <property name="geometry">
+        <rect>
+         <x>520</x>
+         <y>50</y>
+         <width>111</width>
+         <height>91</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="res/resource.qrc">
+         <normaloff>:/ico/edit.png</normaloff>
+         <normalon>:/ico/edit.png</normalon>
+         <selectedoff>:/ico/edit.png</selectedoff>
+         <selectedon>:/ico/edit.png</selectedon>:/ico/edit.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pb_undo">
+       <property name="geometry">
+        <rect>
+         <x>490</x>
+         <y>170</y>
+         <width>131</width>
+         <height>71</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="res/resource.qrc">
+         <normaloff>:/ico/undo.png</normaloff>
+         <normalon>:/ico/undo.png</normalon>
+         <disabledoff>:/ico/undo.png</disabledoff>
+         <disabledon>:/ico/undo.png</disabledon>
+         <activeoff>:/ico/undo.png</activeoff>
+         <activeon>:/ico/undo.png</activeon>
+         <selectedoff>:/ico/undo.png</selectedoff>
+         <selectedon>:/ico/undo.png</selectedon>:/ico/undo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
      <widget class="GameBoard" name="gmboard">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="ToolPane" name="toolpane">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>120</height>
+       </size>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -233,7 +320,15 @@ color: rgb(170, 85, 0);</string>
    <header>infopane.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ToolPane</class>
+   <extends>QFrame</extends>
+   <header location="global">toolpane.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="res/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

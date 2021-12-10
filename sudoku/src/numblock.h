@@ -12,35 +12,34 @@ public:
     NumBlock(QWidget *parent, int num);
     ~NumBlock();
 
-    enum BlockFlag{
-        Standby,
+    enum BlockFlag {
+        Empty,
         Origin,
-        Try,
-        Selected,
         SetOn,
-        Candidate,
-        Conflict
+        Try
     };
 
     inline bool equals(NumBlock *block) { return (block && (m_num==block->m_num));};
-    // inline bool needAnimate() const{ return m_newblock;};
-    // inline void endNewBlock() { m_newblock = false; };
+    inline void setNumber(int number) { m_num = number; };
     inline int number() const { return m_num;};
     inline void setFlag(BlockFlag flag) { m_flag = flag; };
     inline void select(bool bSelect) {m_select = bSelect; };
-    inline void candidate(bool bCandidate) { m_candidate = bCandidate;};
     inline bool isTry() { return m_flag==Try; };
-    inline bool isConflict() { return m_flag==Conflict;};
+    inline void conflict(bool bConflict){ m_conflict = bConflict;};
+    inline bool isConflict() { return m_conflict;};
+    inline bool empty() { return m_num==0; };
+    inline bool isOrigin() { return m_flag == Origin;};
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
+    virtual QColor numberColor();
+    virtual QColor bgColor();
 
 private:
     BlockFlag m_flag;
     int m_num;
     bool m_select;
-    bool m_candidate;
-    // bool m_newblock;
+    bool m_conflict;
 };
 
 

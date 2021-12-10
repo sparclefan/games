@@ -27,22 +27,18 @@ SuccessPane::~SuccessPane()
 
 GameBoard::GameBoard(QWidget *parent)
 :QFrame(parent), m_blockWidth(0), m_blockHeight(0), m_selCol(-1), m_selRow(-1), 
-m_undo(), m_candidateNum(nullptr), m_try(false), m_successPane(nullptr)
+m_undo(), m_try(false), m_successPane(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus);
 
     for(int row=0; row<9; row++)
     for(int col=0; col<9; col++)
-        m_nums[col][row] = nullptr;
-
-    for(int num=0; num<9; num++)
     {
-        for(int i=0; i<9; i++)
-        {
-            NumBlock *block = new NumBlock(this, num+1);
-            m_blocks[num].push_back(block);
-        }
+        m_numblocks[col][row] = new NumBlock(this, 0);
+        int blockId = Sudoku::blockIndex(row, col);
+        m_area[blockId].push_back(m_numblocks[col][row]);
     }
+
 }
 
 GameBoard::~GameBoard()
@@ -57,21 +53,13 @@ QRect GameBoard::blockRect(int col, int row)
     return QRect(x, y, m_blockWidth, m_blockHeight);
 }
 
-QRect GameBoard::toolPaneRect()
-{
-    QRect rect = contentsRect();
-    int toolPaneHeight = m_blockHeight*2+GRID_LINE;
-    return QRect(0, rect.height()-toolPaneHeight, rect.width(), toolPaneHeight);
-}
-
 void GameBoard::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    QRect tpRect = toolPaneRect();
     QRect rect = contentsRect();
 	int colWidth = rect.width()/3;
-	int rowHeight = (rect.height()-tpRect.height())/3;
+	int rowHeight = rect.height()/3;
 
     QPen gridPen(QBrush(QColor(0x4c,0x3c,0x3c, 128)), GRID_LINE);
     painter.setPen(gridPen);
@@ -83,7 +71,7 @@ void GameBoard::paintEvent(QPaintEvent *event)
         painter.drawRect(rgnRect);
 	}
 
-    painter.fillRect(tpRect, conColorBg[0]);
+    // painter.fillRect(tpRect, conColorBg[0]);
 
     QColor color(0xfa, 0xf8, 0xef);
     painter.setPen(color);
@@ -111,22 +99,13 @@ void GameBoard::resizeEvent(QResizeEvent *event)
     QSize size = event->size();
 
     m_blockWidth = (size.width() - GRID_LINE*10)/9;
-    m_blockHeight = (size.height() - GRID_LINE*11)/11;
+    m_blockHeight = (size.height() - GRID_LINE*10)/9;
 
-    QRect tpRect = toolPaneRect();
-    for(int i=0; i<9; i++)
+    for(int row=0; row<9; row++)
+    for(int col=0; col<9; col++)
     {
-        QRect blockRect( i*(m_blockWidth+GRID_LINE), tpRect.y()+m_blockHeight/2, m_blockWidth, m_blockHeight);
-        for(auto block : m_blocks[i]){
-            block->setGeometry(blockRect);
-        }
-
-        for(int j=0; j<9; j++){
-            if( m_nums[i][j]){
-                QRect rect = this->blockRect(i,j);
-                m_nums[i][j]->setGeometry(rect);
-            }
-        }
+            QRect rect = blockRect(col,row);
+            m_numblocks[col][row]->setGeometry(rect);
     }
 }
 
@@ -135,11 +114,11 @@ void GameBoard::selectNum(int col, int row)
     for(int i=0; i<9; i++)
     for(int j=0; j<9; j++)
     {
-        if(  m_nums[col][row] && m_nums[col][row]->equals( m_nums[i][j]) )
+        if(  (!m_numblocks[col][row]->empty()) && ( m_numblocks[col][row]->equals(m_numblocks[i][j])) )
         {
-            m_nums[i][j]->select(true);
-        }else if(m_nums[i][j]){
-            m_nums[i][j]->select(false);
+            m_numblocks[i][j]->select(true);
+        }else if(!m_numblocks[i][j]->empty()){
+            m_numblocks[i][j]->select(false);
         }
     }
 }
@@ -149,13 +128,13 @@ bool GameBoard::isComplete()
     for(int col=0; col<9; col++)
     for(int row=0; row<9; row++)
     {
-        if( !m_nums[col][row] )
+        if( m_numblocks[col][row]->empty() )
             return false;
 
-        if( m_nums[col][row]->isConflict() )
+        if( m_numblocks[col][row]->isConflict() )
             return false;
 
-        if( m_nums[col][row]->isTry())
+        if( m_numblocks[col][row]->isTry())
             return false;
     }
     return true;
@@ -163,7 +142,6 @@ bool GameBoard::isComplete()
 
 void GameBoard::mousePressEvent(QMouseEvent *event)
 {
-    // Loc loc = hitTest(event->x(), event->y());
     int col = event->x()/(m_blockWidth+GRID_LINE);
     int row = event->y()/(m_blockHeight+GRID_LINE);
 
@@ -176,11 +154,6 @@ void GameBoard::mousePressEvent(QMouseEvent *event)
         candidate(col, row);
         repaint();
     }
-    // else{
-    //     m_selCol = -1;
-    //     m_selRow = -1;
-    // }
-
 }
 
 void GameBoard::keyPressEvent(QKeyEvent *event)
@@ -189,7 +162,8 @@ void GameBoard::keyPressEvent(QKeyEvent *event)
     switch(key)
     {
     case Qt::Key_F1:
-        m_try = (!m_try);
+        // onTryToggle();
+        emit tryStateChanged(!m_try);
         break;
     case Qt::Key_F2:
         newGame(Medium);
@@ -218,33 +192,21 @@ void GameBoard::keyPressEvent(QKeyEvent *event)
 
 void GameBoard::reSetNums()
 {
-    QRect tpRect = toolPaneRect();
-
     for(int i=0; i<9; i++)
     for(int j=0; j<9; j++)
     {
-        if( !m_nums[i][j] ) continue;
-
-        NumBlock *block = m_nums[i][j];
-        m_nums[i][j] = nullptr;
-        int num = block->number();
-
-        QRect blockRect( (num-1)*(m_blockWidth+GRID_LINE), tpRect.y()+m_blockHeight/2, m_blockWidth, m_blockHeight);
-        block->setGeometry(blockRect);
-        block->setFlag(NumBlock::BlockFlag::Standby);
-        block->select(false);
-        m_blocks[num-1].push_back(block);
+        m_numblocks[i][j]->setNumber(0);
+        m_numblocks[i][j]->setFlag(NumBlock::BlockFlag::Empty);
+        m_numblocks[i][j]->select(false);
     }
 
     m_selCol = -1;
     m_selRow = -1;
     m_try = 0;
 
-    if( m_candidateNum ){
-        m_candidateNum->candidate(false);
-        m_candidateNum = nullptr;
-    }
-    stack<NumLocation> empty;
+    m_toolPane->resetAll();
+
+    stack<Operator> empty;
     m_undo.swap(empty);
 
     repaint();
@@ -259,17 +221,10 @@ void GameBoard::newGame(GameLevel level)
 
     reSetNums();
     for(auto unit : puzzle){
-        // m_nums[unit.col][unit.row] = new NumBlock(this, unit.num);
-        // QRect rect = blockRect(unit.col, unit.row);
-        // m_nums[unit.col][unit.row]->setGeometry(rect);
-        // m_nums[unit.col][unit.row]->show();
-        int num = unit.num;
-        NumBlock *block = m_blocks[num-1].back();
-        m_blocks[num-1].pop_back();
+        NumBlock *block = m_numblocks[unit.col][unit.row];
         block->setFlag(NumBlock::BlockFlag::Origin);
-        m_nums[unit.col][unit.row] = block;
-        QRect rect = blockRect(unit.col, unit.row);
-        block->setGeometry(rect);
+        block->setNumber(unit.num);
+        m_toolPane->setOn(unit.num);
     }
 
     m_infoPane->startTimer();
@@ -280,92 +235,96 @@ void GameBoard::newGame(GameLevel level)
 
 bool GameBoard::tryCellReset(int num)
 {
-    NumBlock *block = m_nums[m_selCol][m_selRow];
-    if( block->number() == num ){
-        if( (!m_try) && (block->isTry()) ){
-            block->setFlag(NumBlock::BlockFlag::SetOn);
-        }
-        return true;
+    NumBlock *block = m_numblocks[m_selCol][m_selRow];
+
+    Operator op;
+    op.row = m_selRow;
+    op.col = m_selCol;
+    op.oldNumber = block->number();
+    op.newNumber = num;
+    op.op = SetOnNumber;
+    if(block->isTry())
+        op.oldFlag = NumBlock::BlockFlag::Try;
+    else
+        op.oldFlag = NumBlock::BlockFlag::SetOn;
+
+    if(!block->isTry()){
+        m_toolPane->restoreNumber(op.oldNumber);
     }
 
-    if( m_blocks[num-1].empty())
-        return false;
+    block->setNumber(num);
 
-    int oldNum = block->number();
-    block->setFlag(NumBlock::BlockFlag::Standby);
-    block->select(false);
-    QRect tpRect = toolPaneRect();
-    QRect rectBlock( (num-1)*(m_blockWidth+GRID_LINE), tpRect.y()+m_blockHeight/2, m_blockWidth, m_blockHeight);
-    block->setGeometry(rectBlock);
-    m_blocks[oldNum-1].push_back(block);
-    
-    NumBlock *newBlock = m_blocks[num-1].back();
-    m_blocks[num-1].pop_back();
-
-    m_nums[m_selCol][m_selRow] = nullptr;
-    if( m_try )
-        newBlock->setFlag(NumBlock::BlockFlag::Try);
-    else if( conflict(m_selCol, m_selRow, num) )
-        newBlock->setFlag(NumBlock::BlockFlag::Conflict);
-    else
-        newBlock->setFlag(NumBlock::BlockFlag::SetOn);
-
-    QRect rect = blockRect(m_selCol, m_selRow);
-    newBlock->setGeometry(rect);
-    m_nums[m_selCol][m_selRow] = newBlock;
+    m_undo.push(op);
 
     return true;
 
 }
 
+void GameBoard::onTryToggle(int state)
+{
+    m_try = (state==Qt::Checked);
+    // setFocusPolicy(Qt::StrongFocus);
+    setFocus();
+}
 
 bool GameBoard::setNum(int num)
 {
     if( m_selRow<0 || m_selCol<0)
         return false;
 
-    if( m_nums[m_selCol][m_selRow] )
-    {
-       NumBlock *block =m_nums[m_selCol][m_selRow];
-        if ( block->isTry() || block->isConflict() ) {
-            tryCellReset(num);
-            if( isComplete() ) doComplete();
-            return true;
-        }
-        else
-            return false;
-    }
+    NumBlock *block = m_numblocks[m_selCol][m_selRow];
+    if(block->isOrigin()) return false;
 
-    if( m_blocks[num-1].empty())
+    if( (!m_try) && (!m_toolPane->canSet(num)) ) 
         return false;
 
-    NumBlock *block = m_blocks[num-1].back();
-    m_blocks[num-1].pop_back();
+    if( !block->empty() )
+    {
+        if ( (!block->isTry()) && (!block->isConflict()) ) {
+            return false;
+        }
 
-    if( m_try )
-        block->setFlag(NumBlock::BlockFlag::Try);
-    else if( conflict(m_selCol, m_selRow, num) )
-        block->setFlag(NumBlock::BlockFlag::Conflict);
+        if( !block->isTry()){
+            m_toolPane->restoreNumber(block->number());
+        }
+    }
+
+    Operator op;
+    op.row = m_selRow;
+    op.col = m_selCol;
+    op.oldNumber = block->number();
+    op.newNumber = num;
+    op.op = SetOnNumber;
+    if(block->isTry())
+        op.oldFlag = NumBlock::BlockFlag::Try;
     else
-        block->setFlag(NumBlock::BlockFlag::SetOn);
+        op.oldFlag = NumBlock::BlockFlag::SetOn;
 
-    m_nums[m_selCol][m_selRow] = block;
+    if( m_try ){
+        block->setFlag(NumBlock::BlockFlag::Try);
+        op.op = TrySetNumber;
+    }
+    else{
+        block->setFlag(NumBlock::BlockFlag::SetOn);
+        m_toolPane->setOn(num);
+    }
+
+    block->setNumber(num);
+    if(block->isConflict()) checkConflict();
     QRect rect = blockRect(m_selCol, m_selRow);
     QRect rect0 = QRect(rect.center(), QSize(0,0));  //block->geometry();
-    MoveAnimation *ani = new MoveAnimation(m_nums[m_selCol][m_selRow], rect0, rect);
+    MoveAnimation *ani = new MoveAnimation(block, rect0, rect);
     connect(ani,  SIGNAL(finished()), this, SLOT(onSetNumFinished()) );
-    NumLocation loc = {m_selCol, m_selRow};
-    m_undo.push(loc);
+
+    m_undo.push(op);
     ani->start();
 }
 
 void GameBoard::onSetNumFinished()
 {
     selectNum(m_selCol, m_selRow);
-    if( m_candidateNum ){
-        m_candidateNum->candidate(false);
-        m_candidateNum = nullptr;
-    }
+    conflict(m_selCol, m_selRow);
+    m_toolPane->recommend(-1);
 
     if( isComplete() )
     {
@@ -404,49 +363,98 @@ void GameBoard::onNewPuzzle()
     newGame(Hard);
 }
 
-bool GameBoard::conflict(int col, int row, int num)
+bool GameBoard::conflict(int col, int row)
 {
-    for(int i=0; i<9; i++)
-    {
-        if( m_nums[i][row] && m_nums[i][row]->number()==num )
-            return true;
-        if( m_nums[col][i] && m_nums[col][i]->number()==num )
-            return true;
-    }
+    bool bConflict = false;
 
+    NumBlock *block = m_numblocks[col][row];
+    int num = block->number();
     int blockId = Sudoku::blockIndex(row, col);
     for(int i=0; i<9; i++)
-    for(int j=0; j<9; j++)
     {
-        int bid = Sudoku::blockIndex(j, i);
-        if( bid != blockId ) continue;
-        if( m_nums[i][j] && m_nums[i][j]->number() == num)
+        if( (i!=col) && m_numblocks[i][row]->number()==num )
+        {
+            bConflict = true;
+            m_numblocks[i][row]->conflict(true);
+            m_numblocks[i][row]->update();
+        }
+        if( (i!=row) && m_numblocks[col][i]->number()==num )
+        {
+            bConflict = true;
+            m_numblocks[col][i]->conflict(true);
+            m_numblocks[col][i]->update();
+        }
+        if( (block != m_area[blockId][i]) && m_area[blockId][i]->number()==num )
+        {
+            bConflict = true;
+            m_area[blockId][i]->conflict(true);
+            m_area[blockId][i]->update();
+        }
+    }
+
+    if(bConflict) block->conflict(true);
+
+    return bConflict;
+}
+
+bool GameBoard::isConflict(int col, int row, int num)
+{
+    int blockId = Sudoku::blockIndex(row, col);
+    NumBlock *block = m_numblocks[col][row];
+    if(num==0) num = block->number();
+    for(int i=0; i<9; i++)
+    {
+        if( (i!=col) && m_numblocks[i][row]->number()==num )
+            return true;
+        if( (i!=row) && m_numblocks[col][i]->number()==num )
+            return true;
+        if( (block != m_area[blockId][i]) && m_area[blockId][i]->number()==num )
             return true;
     }
 
     return false;
 }
 
+void GameBoard::checkConflict()
+{
+    for(int row=0; row<9; row++)
+    for(int col=0; col<9; col++)
+    {
+        NumBlock *block = m_numblocks[col][row];
+        if( block->empty()) continue;
+        if( !block->isConflict()) continue;
+        if( !isConflict(col, row, 0) ){
+            block->conflict(false);
+            block->update();
+        }
+    }
+}
+
+
 void GameBoard::undo()
 {
     if(m_undo.empty())
         return;
 
-    NumLocation loc = m_undo.top();
+    Operator op = m_undo.top();
     m_undo.pop();
-    NumBlock *block = m_nums[loc.col][loc.row];
+    NumBlock *block = m_numblocks[op.col][op.row];
 
-    int num = block->number();
     block->select(false);
-    block->setFlag(NumBlock::BlockFlag::Standby);
-    
-    QRect tpRect = toolPaneRect();
-    QRect blockRect( (num-1)*(m_blockWidth+GRID_LINE), tpRect.y()+m_blockHeight/2, m_blockWidth, m_blockHeight);
-    block->setGeometry(blockRect);
+    block->setNumber(op.oldNumber);
+    block->setFlag(op.oldFlag);
 
-    m_nums[loc.col][loc.row] = nullptr;
-    m_blocks[num-1].push_back(block);
+    if(block->isConflict())
+        checkConflict();
 
+    conflict(op.col, op.row);
+
+    block->update();
+
+    m_toolPane->restoreNumber(op.newNumber);
+    m_toolPane->setOn(op.oldNumber);
+
+    setFocus();
 }
 
 bool GameBoard::isTipsCell(int col, int row)
@@ -454,41 +462,33 @@ bool GameBoard::isTipsCell(int col, int row)
     if(m_selRow<0 || m_selCol<0 )
         return false;
 
-    if( !m_nums[m_selCol][m_selRow] )
-        return (col==m_selCol || row==m_selRow);
+    if( m_numblocks[m_selCol][m_selRow]->empty() )
+        return (col!=m_selCol && row!=m_selRow);
 
-    int num = m_nums[m_selCol][m_selRow]->number();
-    if( conflict(col, row, num) )
+    int num = m_numblocks[m_selCol][m_selRow]->number();
+    if( isConflict(col, row, num) )
         return true;
 
-    return (m_nums[col][row] != nullptr);
+    return (!m_numblocks[col][row]->empty());
 }
 
 void GameBoard::candidate(int col, int row)
 {
-    if( m_candidateNum ){
-        m_candidateNum->candidate(false);
-        m_candidateNum = nullptr;
-    }
+    m_toolPane->recommend(-1);
 
-    if( m_nums[col][row] ){
+    if( !m_numblocks[col][row]->empty() ){
         return;
     }
 
     int candNum = 0;
     for(int num=1; num<=9; num++){
-        if( !conflict(col, row, num) ){
+        if( !isConflict(col, row, num) ){
             if(candNum) return;
             candNum = num;
         }
     }
 
     if( !candNum ) return;
+    m_toolPane->recommend(candNum);
 
-    if( m_candidateNum ) 
-        m_candidateNum->candidate(false);
-
-    m_candidateNum = m_blocks[candNum-1].back();
-    m_candidateNum->candidate(true);
-    m_candidateNum->raise();
 }

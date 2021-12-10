@@ -4,6 +4,7 @@
 #include <QFrame>
 #include "numblock.h"
 #include "infopane.h"
+#include "toolpane.h"
 #include <map>
 #include <vector>
 #include <stack>
@@ -15,11 +16,6 @@ enum GameLevel{
     Medium,
     Hard
 };
-
-typedef struct{
-    int col;
-    int row;
-} NumLocation;
 
 namespace Ui{
 	class SuccessPane;
@@ -37,6 +33,21 @@ public:
 };
 
 
+enum GameOperator{
+    SetOnNumber,
+    TrySetNumber,
+    TryToSetOn
+};
+
+typedef struct{
+    int row;
+    int col;
+    int oldNumber;
+    int newNumber;
+    GameOperator op;
+    NumBlock::BlockFlag oldFlag;
+} Operator;
+
 class GameBoard : public QFrame
 {
     Q_OBJECT
@@ -45,10 +56,17 @@ public:
     ~GameBoard();
 
     inline void setInfoPane(InfoPane *pane){ m_infoPane = pane;};
+    inline void setToolPane(ToolPane *pane){ m_toolPane = pane;};
 
 public slots:
     void onSetNumFinished();
     void onNewPuzzle();
+    bool setNum(int num);
+    void undo();
+    void onTryToggle(int state);
+
+signals:
+    void tryStateChanged(bool state);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -58,10 +76,9 @@ protected:
 
 private:
     QRect blockRect(int col, int row);
-    QRect toolPaneRect();
-    bool setNum(int num);
-    void undo();
-    bool conflict(int col, int row, int num);
+    bool conflict(int col, int row);
+    bool isConflict(int col, int row, int num);
+    void checkConflict();
     bool isTipsCell(int col, int row);
     void reSetNums();
     bool tryCellReset(int num);
@@ -78,13 +95,13 @@ private:
     int m_selRow;
     bool m_try;
 
-    NumBlock *m_candidateNum;
-    NumBlock *m_nums[9][9];
-    vector<NumBlock *> m_blocks[9];
-    stack<NumLocation> m_undo;
+    NumBlock *m_numblocks[9][9];
+    vector<NumBlock *> m_area[9];
+    stack<Operator> m_undo;
 
     SuccessPane *m_successPane;
     InfoPane *m_infoPane;
+    ToolPane *m_toolPane;
 };
 
 #endif //__GAMEBOARD_H_Sparcle_2021_11_22

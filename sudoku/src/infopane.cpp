@@ -20,7 +20,7 @@ void InfoPane::paintEvent(QPaintEvent *event)
     painter.setFont(serifFont);
 
     int hour = m_timePassed/3600;
-    int min = m_timePassed/60;
+    int min = (m_timePassed%3600)/60;
     int sec = m_timePassed%60;
 
     QString tmStr = QString("%1:%2:%3").arg(hour).arg(min).arg(sec);
@@ -29,6 +29,7 @@ void InfoPane::paintEvent(QPaintEvent *event)
     QRect rectTm = QRect(rectFrame.center().x(), 0, rectFrame.width()/2, rectFrame.height());
 
     painter.drawText(rectTm, Qt::AlignCenter, tmStr);
+
 }
 
 void InfoPane::resizeEvent(QResizeEvent *event)

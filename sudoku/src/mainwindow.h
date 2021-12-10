@@ -14,6 +14,9 @@ public:
 	MainWindow();
 	~MainWindow();
 
+public slots:
+	void setTryButtonState(bool state);
+
 private:
      Ui::MainWindow *ui;
 };
