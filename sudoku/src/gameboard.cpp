@@ -440,6 +440,9 @@ void GameBoard::undo()
     m_undo.pop();
     NumBlock *block = m_numblocks[op.col][op.row];
 
+    if( !block->isTry() )
+        m_toolPane->restoreNumber(op.newNumber);
+
     block->select(false);
     block->setNumber(op.oldNumber);
     block->setFlag(op.oldFlag);
@@ -451,8 +454,8 @@ void GameBoard::undo()
 
     block->update();
 
-    m_toolPane->restoreNumber(op.newNumber);
-    m_toolPane->setOn(op.oldNumber);
+    if( !block->isTry())
+        m_toolPane->setOn(op.oldNumber);
 
     setFocus();
 }
